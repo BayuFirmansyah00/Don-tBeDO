@@ -1,0 +1,6 @@
+[theme]
+primaryColor = "#4F46E5"          # Biru Indigo utama seperti di tombol prediksi
+backgroundColor = "#EEF2F6"      # Warna background pastel cerah seluruh web
+secondaryBackgroundColor = "#E0E7FF" # Warna background sidebar / card hover
+textColor = "#1F2937"            # Warna text hitam keabuan gelap biar elegan
+font = "sans serif"

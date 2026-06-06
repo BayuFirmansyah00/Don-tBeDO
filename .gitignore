@@ -1,0 +1,44 @@
+# ==========================================
+# 1. KUNCI RAHASIA FIREBASE 
+# ==========================================
+firebase-key.json
+
+# ==========================================
+# 2. PYTHON (Cache & Kompilasi Lokal)
+# ==========================================
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+.venv/
+pip-log.txt
+pip-delete-this-directory.txt
+
+# ==========================================
+# 3. JUPYTER NOTEBOOK (Sampah Checkpoint)
+# ==========================================
+.ipynb_checkpoints
+*/.ipynb_checkpoints/*
+.local
+
+# ==========================================
+# 4. VIRTUAL ENVIRONMENT & IDE
+# ==========================================
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.swp
+
+# ==========================================
+# 5. OS SYSTEM (File Sampah Bawaan Laptop)
+# ==========================================
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+.DS_Store
