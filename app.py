@@ -1,307 +1,212 @@
 import streamlit as st
 
 # ==============================================================================
-# KONFIGURASI HALAMAN
+# 1. KONFIGURASI HALAMAN UTAMA (Wajib Paling Atas)
 # ==============================================================================
 st.set_page_config(
-    page_title="DontBe-DO | Prediksi Risiko Dropout Mahasiswa",
+    page_title="DontBe-DO | Early Warning System Risiko Dropout",
     page_icon="🎓",
     layout="wide",
     initial_sidebar_state="collapsed"
 )
 
 # ==============================================================================
-# HALAMAN NAVIGASI
+# 2. LOGIKA STATE NAVIGASI KUSTOM
 # ==============================================================================
-prediksi_page = st.Page("views/prediksi.py", title="Prediksi Dropout", icon="🔮")
-tentang_page  = st.Page("views/tentang.py",  title="Tentang",          icon="ℹ️")
+if "current_page" not in st.session_state:
+    st.session_state.current_page = "Beranda"
 
-if "enter_system" not in st.session_state:
-    st.session_state.enter_system = False
+# Fungsi callback untuk perpindahan halaman lewat navbar kustom
+def pindah_halaman(nama_halaman):
+    st.session_state.current_page = nama_halaman
+    st.rerun()
 
-if st.session_state.enter_system:
-    pg = st.navigation({
-        "Menu": [prediksi_page, tentang_page]
-    })
-    pg.run()
-else:
-    # ══════════════════════════════════════════════════════════════════════════
-    # CSS GLOBAL BERANDA – meniru desain mockup persis
-    # ══════════════════════════════════════════════════════════════════════════
+# ==============================================================================
+# 3. KOMPONEN NAVBAR KUSTOM (Pojok Kanan Atas - Persis Mockup)
+# ==============================================================================
+def render_custom_navbar():
     st.markdown("""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
-
-    html, body, [data-testid="stAppViewContainer"], [data-testid="stMain"] {
-        background: #FFFFFF !important;
-        font-family: 'Plus Jakarta Sans', sans-serif;
-    }
-    [data-testid="stHeader"]     { display: none !important; }
-    [data-testid="stSidebar"]    { display: none !important; }
-    .block-container             { padding: 0 !important; max-width: 100% !important; }
-    footer                       { display: none !important; }
-
-    /* ── NAV ── */
-    .navbar {
+    
+    /* Sembunyikan elemen bawaan Streamlit agar bersih */
+    [data-testid="stSidebar"] { display: none !important; }
+    [data-testid="stHeader"] { background: transparent !important; }
+    
+    .nav-container {
         display: flex;
-        align-items: center;
         justify-content: space-between;
-        padding: 20px 72px;
+        align-items: center;
+        padding: 16px 40px;
+        background: #FFFFFF;
         border-bottom: 1px solid #E5E7EB;
-        background: #FFFFFF;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 99999;
     }
-    .nav-brand {
-        font-size: 1.35rem;
+    .nav-logo {
+        font-size: 1.3rem;
         font-weight: 800;
-        color: #1D77E6;
-        letter-spacing: -0.5px;
+        color: #4F46E5;
+        letter-spacing: -0.03em;
     }
-    .nav-links { display: flex; gap: 36px; align-items: center; }
-    .nav-link  {
-        font-size: 0.95rem;
-        font-weight: 500;
-        color: #111827;
-        text-decoration: none;
-        cursor: pointer;
-    }
-    .nav-link.active { color: #1D77E6; font-weight: 600; }
-
-    /* ── HERO ── */
-    .hero-section {
+    .nav-links {
         display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 72px 72px 60px;
-        max-width: 1200px;
-        margin: 0 auto;
-        gap: 48px;
+        gap: 28px;
     }
-    .hero-left { flex: 1; }
-    .hero-right { flex: 0 0 420px; }
-
-    .hero-title {
-        font-size: 3rem;
-        font-weight: 800;
-        color: #111827;
-        line-height: 1.18;
-        letter-spacing: -1px;
-        margin-bottom: 20px;
-    }
-    .hero-title .accent { color: #1D77E6; }
-
-    .hero-subtitle {
-        font-size: 1.05rem;
-        color: #4B5563;
-        line-height: 1.7;
-        max-width: 480px;
-        margin-bottom: 36px;
-    }
-
-    .hero-buttons { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 40px; }
-    .btn-primary {
-        background: #1D77E6;
-        color: #FFFFFF;
-        border: none;
-        border-radius: 8px;
-        padding: 14px 28px;
-        font-size: 1rem;
-        font-weight: 700;
-        cursor: pointer;
-        font-family: 'Plus Jakarta Sans', sans-serif;
-    }
-    .btn-outline {
-        background: transparent;
-        color: #1D77E6;
-        border: 1.5px solid #1D77E6;
-        border-radius: 8px;
-        padding: 13px 28px;
-        font-size: 1rem;
-        font-weight: 700;
-        cursor: pointer;
-        font-family: 'Plus Jakarta Sans', sans-serif;
-    }
-
-    .trust-badges { display: flex; gap: 28px; flex-wrap: wrap; }
-    .badge-item   { display: flex; align-items: center; gap: 6px; font-size: 0.88rem; color: #6B7280; font-weight: 500; }
-
-    /* Hero illustration placeholder */
-    .hero-illustration {
-        width: 100%;
-        height: 300px;
-        background: linear-gradient(135deg, #EFF6FF 0%, #DBEAFE 100%);
-        border-radius: 20px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 7rem;
-    }
-
-    /* ── SEPARATOR ── */
-    .section-divider {
-        border: none;
-        border-top: 1px solid #E5E7EB;
-        margin: 0;
-    }
-
-    /* ── HOW IT WORKS ── */
-    .how-section {
-        padding: 72px 72px;
-        background: #FAFAFA;
-        text-align: center;
-    }
-    .how-badge {
-        font-size: 0.8rem;
-        font-weight: 700;
-        color: #1D77E6;
-        letter-spacing: 1.5px;
-        text-transform: uppercase;
-        margin-bottom: 12px;
-    }
-    .how-title {
-        font-size: 2.1rem;
-        font-weight: 800;
-        color: #111827;
-        margin-bottom: 48px;
-        letter-spacing: -0.5px;
-    }
-    .steps-grid { display: flex; gap: 28px; justify-content: center; flex-wrap: wrap; max-width: 1100px; margin: 0 auto; }
-    .step-card {
-        background: #FFFFFF;
-        border: 1px solid #E5E7EB;
-        border-radius: 16px;
-        padding: 32px 28px;
-        flex: 1;
-        min-width: 260px;
-        max-width: 320px;
-        text-align: left;
-        border-bottom: 3px solid #1D77E6;
-    }
-    .step-number {
-        font-size: 1rem;
-        font-weight: 700;
-        color: #1D77E6;
-        margin-bottom: 12px;
-    }
-    .step-title {
-        font-size: 1.05rem;
-        font-weight: 700;
-        color: #111827;
-        margin-bottom: 10px;
-    }
-    .step-desc { font-size: 0.92rem; color: #6B7280; line-height: 1.65; }
-
-    /* ── FOOTER ── */
-    .site-footer {
-        border-top: 1px solid #E5E7EB;
-        padding: 28px 72px;
-        text-align: center;
-        font-size: 0.85rem;
-        color: #9CA3AF;
-        background: #FFFFFF;
-    }
-
-    /* Override Streamlit button styles */
-    div[data-testid="stButton"] > button {
-        background: #1D77E6 !important;
-        color: white !important;
-        border: none !important;
-        border-radius: 8px !important;
-        padding: 14px 28px !important;
-        font-size: 1rem !important;
-        font-weight: 700 !important;
-        font-family: 'Plus Jakarta Sans', sans-serif !important;
-        cursor: pointer !important;
-        width: auto !important;
-    }
-    div[data-testid="stButton"] > button:hover {
-        background: #1560C4 !important;
-        border: none !important;
+    .main-content-wrapper {
+        margin-top: 100px;
+        padding: 0 40px;
     }
     </style>
     """, unsafe_allow_html=True)
+    
+    # Render struktur dasar kontainer navbar
+    cols_nav = st.columns([1, 2])
+    with cols_nav[0]:
+        st.markdown('<div class="nav-container"><div class="nav-logo">🎓 DontBe-DO</div></div>', unsafe_allow_html=True)
+        
+    with cols_nav[1]:
+        # Tempatkan tombol navigasi riil di kanan atas secara horizontal
+        c1, c2, c3, c4 = st.columns([4, 1, 1, 1])
+        with c2:
+            if st.button("Beranda", key="btn_nav_home", use_container_width=True, type="secondary" if st.session_state.current_page != "Beranda" else "primary"):
+                pindah_halaman("Beranda")
+        with c3:
+            if st.button("Prediksi", key="btn_nav_pred", use_container_width=True, type="secondary" if st.session_state.current_page != "Prediksi" else "primary"):
+                pindah_halaman("Prediksi")
+        with c4:
+            if st.button("Tentang", key="btn_nav_about", use_container_width=True, type="secondary" if st.session_state.current_page != "Tentang" else "primary"):
+                pindah_halaman("Tentang")
 
-    # ── NAVBAR ──
+# Panggil navbar di awal eksekusi
+render_custom_navbar()
+
+# ==============================================================================
+# 4. ROUTING HALAMAN INTERNAL
+# ==============================================================================
+st.markdown('<div class="main-content-wrapper">', unsafe_allow_html=True)
+
+if st.session_state.current_page == "Beranda":
+    # ── CSS KHUSUS LANDING PAGE BERANDA ──
     st.markdown("""
-    <div class="navbar">
-        <div class="nav-brand">DontBe–DO</div>
-        <div class="nav-links">
-            <span class="nav-link active">Beranda</span>
-            <span class="nav-link">Tentang</span>
+    <style>
+    .hero-container {
+        max-width: 960px;
+        margin: 40px auto 30px auto;
+        text-align: center;
+    }
+    .ews-badge {
+        background-color: #EEF2FF;
+        color: #4F46E5;
+        font-size: 0.75rem;
+        font-weight: 700;
+        padding: 6px 16px;
+        border-radius: 9999px;
+        display: inline-block;
+        margin-bottom: 20px;
+        text-transform: uppercase;
+        border: 1px solid #E0E7FF;
+    }
+    .hero-title {
+        font-size: 2.8rem;
+        font-weight: 800;
+        color: #111827;
+        line-height: 1.2;
+        margin-bottom: 16px;
+    }
+    .hero-title span { color: #4F46E5; }
+    .hero-subtitle {
+        font-size: 1.1rem;
+        color: #4B5563;
+        max-width: 720px;
+        margin: 0 auto 32px auto;
+        line-height: 1.6;
+    }
+    .concept-card {
+        background: #FFFFFF;
+        border: 1px solid #E5E7EB;
+        border-radius: 12px;
+        padding: 24px;
+        max-width: 960px;
+        margin: 30px auto;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+    .concept-title { font-size: 1.2rem; font-weight: 700; color: #111827; margin-bottom: 10px; }
+    .concept-desc { font-size: 0.95rem; color: #4B5563; line-height: 1.6; text-align: justify; }
+    .how-section { max-width: 960px; margin: 40px auto 60px auto; }
+    .how-title { font-size: 1.75rem; font-weight: 800; color: #111827; margin-bottom: 24px; text-align: center; }
+    .steps-grid { display: flex; gap: 24px; justify-content: space-between; }
+    .step-card { background: #FFFFFF; border: 1px solid #E5E7EB; padding: 24px; border-radius: 12px; flex: 1; }
+    .step-number { font-size: 1rem; font-weight: 700; color: #111827; margin-bottom: 8px; }
+    .step-desc { font-size: 0.88rem; color: #6B7280; line-height: 1.5; }
+    .site-footer { text-align: center; padding: 24px 0; font-size: 0.85rem; color: #9CA3AF; border-top: 1px solid #E5E7EB; margin-top: 40px; }
+    </style>
+    """, unsafe_allow_html=True)
+
+    st.markdown("""
+    <div class="hero-container">
+        <div class="ews-badge">🛡️ AI-Powered Early Warning System</div>
+        <div class="hero-title">Sistem Deteksi Dini Risiko <span>Dropout Mahasiswa</span></div>
+        <div class="hero-subtitle">
+            Mengidentifikasi kerentanan kelangsungan studi mahasiswa secara prediktif sejak tahun pertama. 
+            Menjembatani pencegahan preventif melalui integrasi algoritma Machine Learning dan data sosial-ekonomi.
         </div>
     </div>
     """, unsafe_allow_html=True)
 
-    # ── HERO SECTION ──
+    # Tombol Aksi Masuk Sistem Evaluasi (Sesuai Desain)
+    c_b1, c_b2, c_b3 = st.columns([2, 1, 2])
+    with c_b2:
+        if st.button("Masuk ke Sistem Evaluasi 🚀", key="btn_hero_enter", use_container_width=True, type="primary"):
+            pindah_halaman("Prediksi")
+
     st.markdown("""
-    <div class="hero-section">
-        <div class="hero-left">
-            <div class="hero-title">
-                Prediksi Dini Risiko<br>
-                <span class="accent">Mahasiswa Dropout</span><br>
-                Menggunakan AI
-            </div>
-            <p class="hero-subtitle">
-                DontBe-DO menganalisis data akademik, sosial, dan ekonomi siswa untuk
-                mengidentifikasi mahasiswa yang berisiko sejak dini, sehingga memungkinkan
-                dilakukannya intervensi yang lebih tepat sasaran
-            </p>
-            <div class="trust-badges">
-                <span class="badge-item">🤖 AI-Powered</span>
-                <span class="badge-item">⚡ Instant Result</span>
-                <span class="badge-item">👤 No Sign-up</span>
-                <span class="badge-item">✨ Free to Use</span>
-            </div>
-        </div>
-        <div class="hero-right">
-            <div class="hero-illustration">🎓</div>
+    <div class="concept-card">
+        <div class="concept-title">💡 Mengapa Harus Early Warning System (EWS)?</div>
+        <div class="concept-desc">
+            Intervensi akademik yang paling efektif untuk menekan angka putus studi wajib dilakukan <b>sedini mungkin pada semester awal</b>, sebelum mahasiswa mengambil keputusan final untuk keluar. Menggunakan basis data performa akademik semester 1 dan 2 dari <i>UCI Machine Learning Repository</i>, sistem ini dirancang sebagai instrumen mitigasi bagi program studi untuk mendeteksi indikator kegagalan lebih awal dan menyusun program pendampingan yang tepat sasaran.
         </div>
     </div>
-    """, unsafe_allow_html=True)
-
-    # Tombol aksi CTA
-    col1, col2, col3 = st.columns([2, 1, 3])
-    with col1:
-        if st.button("Mulai Prediksi", key="hero_cta"):
-            st.session_state.enter_system = True
-            st.rerun()
-    with col2:
-        st.markdown("""
-        <button class="btn-outline" onclick="">Pelajari Lebih Lanjut</button>
-        """, unsafe_allow_html=True)
-
-    # ── HOW IT WORKS ──
-    st.markdown("<hr class='section-divider'>", unsafe_allow_html=True)
-    st.markdown("""
+    
     <div class="how-section">
-        <div class="how-badge">3 LANGKAH MUDAH</div>
-        <div class="how-title">Bagaimana Menggunakannya?</div>
+        <div class="how-title">Bagaimana Sistem Bekerja?</div>
         <div class="steps-grid">
             <div class="step-card">
-                <div class="step-number">1. Masukkan Data Mahasiswa</div>
-                <div class="step-desc">
-                    Isi data akademik dan informasi pendukung mahasiswa pada formulir prediksi
-                </div>
+                <div class="step-number">1. Pengisian Data Fleksibel</div>
+                <div class="step-desc">Input data identitas, status finansial/sosial, serta capaian performa akademik secara dinamis menggunakan mode Semester 1 atau Semester 2.</div>
             </div>
             <div class="step-card">
-                <div class="step-number">2. Dapatkan Prediksi Instan</div>
-                <div class="step-desc">
-                    Klik tombol "Prediksi" untuk mendapatkan analisis instan yang didukung oleh
-                    kecerdasan buatan mengenai risiko dropout, berdasarkan faktor akademik, sosial-ekonomi
-                </div>
+                <div class="step-number">2. Komputasi Probabilitas AI</div>
+                <div class="step-desc">Model klasifikasi Random Forest memproses data input, melakukan penyelarasan matriks fitur otomatis, dan menghitung bobot risiko secara objektif.</div>
             </div>
             <div class="step-card">
-                <div class="step-number">3. Lihat Hasil Prediksi</div>
-                <div class="step-desc">
-                    Lihat hasil prediksi dropout disesuaikan dengan risiko yang anda masukkan
-                </div>
+                <div class="step-number">3. Output & Rekomendasi Klinis</div>
+                <div class="step-desc">Sistem menyajikan visualisasi indeks kerawanan, mengelompokkan tingkat risiko, serta mengeluarkan draf rekomendasi tindakan preventif.</div>
             </div>
         </div>
     </div>
-    """, unsafe_allow_html=True)
-
-    # ── FOOTER ──
-    st.markdown("""
+    
     <div class="site-footer">
-        © 2026 DontBe-DO All right reserved
+        © 2026 DontBe-DO Project — Capstone AI Engineer Pijak GM068. All Rights Reserved.
     </div>
     """, unsafe_allow_html=True)
+
+elif st.session_state.current_page == "Prediksi":
+    import sys
+    from os.path import dirname, join, abspath
+    sys.path.insert(0, abspath(dirname(__file__)))
+    
+    # Memanggil script form prediksi eksternal
+    with open("views/prediksi.py", "r", encoding="utf-8") as f:
+        code = f.read()
+    exec(code, globals())
+
+elif st.session_state.current_page == "Tentang":
+    with open("views/tentang.py", "r", encoding="utf-8") as f:
+        code = f.read()
+    exec(code, globals())
+
+st.markdown('</div>', unsafe_allow_html=True)
