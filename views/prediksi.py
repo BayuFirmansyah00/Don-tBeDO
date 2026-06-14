@@ -19,7 +19,7 @@ def load_assets():
             if os.path.exists(COLS_PATH):
                 with open(COLS_PATH, "rb") as f: cols = pickle.load(f)
     except Exception as e:
-        st.error(f"❌ Gagal memuat model: {e}")
+        st.error(f"Gagal memuat model: {e}")
     return model, scaler, cols
 
 model, scaler, columns_list = load_assets()
@@ -29,44 +29,45 @@ st.markdown("""
 <style>
     .main-title { font-size: 1.85rem; font-weight: 800; color: #111827; margin-bottom: 2px; }
     .sub-title { font-size: 0.95rem; color: #6B7280; margin-bottom: 24px; }
-    .section-card { background: #FFFFFF; padding: 24px; border-radius: 12px; border: 1px solid #E5E7EB; box-shadow: 0 1px 3px rgba(0,0,0,0.05); margin-bottom: 20px; }
-    .section-card-title { font-size: 1.1rem; font-weight: 700; color: #111827; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
-    .hasil-box { padding: 24px; border-radius: 12px; margin-top: 24px; border: 1px solid #E5E7EB; }
+    .section-card { background: #FFFFFF; padding: 24px 28px; border-radius: 12px; border: 1px solid #E5E7EB; box-shadow: 0 1px 3px rgba(0,0,0,0.04); margin-bottom: 20px; }
+    .section-card-title { font-size: 0.8rem; font-weight: 700; color: #4F46E5; text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 16px; padding-bottom: 10px; border-bottom: 1px solid #F3F4F6; }
+    .hasil-box { padding: 28px; border-radius: 12px; margin-top: 24px; border: 1px solid #E5E7EB; }
     .hasil-rendah { background-color: #F0FDF4; border-color: #DCFCE7; }
     .hasil-sedang { background-color: #FFFBEB; border-color: #FEF3C7; }
     .hasil-tinggi { background-color: #FEF2F2; border-color: #FEE2E2; }
-    .hasil-label { font-size: 0.85rem; color: #4B5563; font-weight: 500; }
+    .hasil-label { font-size: 0.8rem; color: #6B7280; font-weight: 500; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px; }
     .hasil-prob { font-size: 1.2rem; font-weight: 700; color: #111827; }
     .hasil-resiko-rendah { font-size: 1.2rem; font-weight: 800; color: #16A34A; }
     .hasil-resiko-sedang { font-size: 1.2rem; font-weight: 800; color: #D97706; }
     .hasil-resiko-tinggi { font-size: 1.2rem; font-weight: 800; color: #DC2626; }
-    .progress-bg { background-color: #E5E7EB; border-radius: 9999px; height: 8px; width: 100%; margin-top: 8px; overflow: hidden; }
+    .progress-bg { background-color: #E5E7EB; border-radius: 9999px; height: 6px; width: 100%; margin-top: 8px; overflow: hidden; }
     .progress-bar { height: 100%; border-radius: 9999px; }
-    .rekomen-text { font-size: 0.9rem; color: #374151; line-height: 1.5; font-weight: 500; background: #FFFFFF; padding: 12px 16px; border-radius: 8px; border: 1px solid #E5E7EB; margin-top: 12px; }
+    .rekomen-text { font-size: 0.9rem; color: #374151; line-height: 1.6; font-weight: 500; background: #FFFFFF; padding: 14px 16px; border-radius: 8px; border: 1px solid #E5E7EB; margin-top: 16px; }
     div[data-testid="stForm"] { border: none !important; padding: 0 !important; }
     .model-warning { background: #FFF7ED; border: 1px solid #FED7AA; border-radius: 8px; padding: 12px 16px; color: #92400E; font-size: 0.88rem; margin-bottom: 16px; }
+    .hasil-title { font-size: 1.1rem; font-weight: 800; color: #111827; margin-bottom: 18px; }
 </style>
 """, unsafe_allow_html=True)
 
-st.markdown('<div class="main-title">🔮 Formulir Prediksi Risiko Dropout</div>', unsafe_allow_html=True)
+st.markdown('<div class="main-title">Formulir Prediksi Risiko Dropout</div>', unsafe_allow_html=True)
 st.markdown('<div class="sub-title">Isi data akademik dan sosial ekonomi mahasiswa untuk menganalisis potensi kelangsungan studi.</div>', unsafe_allow_html=True)
 
 # Tampilkan peringatan jika model tidak tersedia
 if model is None or scaler is None:
     st.markdown("""
     <div class="model-warning">
-        ⚠️ <b>Model belum tersedia.</b> Jalankan notebook <code>Week5_Modeling.ipynb</code> terlebih dahulu 
+        <b>Model belum tersedia.</b> Jalankan notebook <code>Week5_Modeling.ipynb</code> terlebih dahulu 
         untuk menghasilkan <code>model_random_forest.pkl</code>, <code>scaler.pkl</code>, dan <code>columns.pkl</code>, 
         kemudian simpan ke direktori <code>notebooks/</code>.
     </div>
     """, unsafe_allow_html=True)
 
 if columns_list is None:
-    st.warning("⚠️ File `columns.pkl` tidak ditemukan. Urutan fitur tidak dapat diverifikasi — hasil prediksi mungkin tidak akurat.")
+    st.warning("File `columns.pkl` tidak ditemukan. Urutan fitur tidak dapat diverifikasi — hasil prediksi mungkin tidak akurat.")
 
-# ── MODE SEMESTER DI LUAR FORM agar perubahan langsung rerender ──
+# ── MODE SEMESTER DI LUAR FORM ──
 st.markdown('<div class="section-card">', unsafe_allow_html=True)
-st.markdown('<div class="section-card-title">📋 Data Identitas & Basis Evaluasi</div>', unsafe_allow_html=True)
+st.markdown('<div class="section-card-title">Data Identitas dan Basis Evaluasi</div>', unsafe_allow_html=True)
 mode_semester = st.selectbox(
     "Mode Sistem Deteksi Dini (Early Warning)",
     ["Evaluasi Akhir Semester 1 (Deteksi Dini)", "Evaluasi Akhir Semester 2 (Deteksi Akhir Tahun Pertama)"],
@@ -77,7 +78,7 @@ st.markdown('</div>', unsafe_allow_html=True)
 with st.form("form_prediksi_internal"):
     # ── KELOMPOK 1: DATA IDENTITAS ──
     st.markdown('<div class="section-card">', unsafe_allow_html=True)
-    st.markdown('<div class="section-card-title">👤 Identitas Mahasiswa</div>', unsafe_allow_html=True)
+    st.markdown('<div class="section-card-title">Identitas Mahasiswa</div>', unsafe_allow_html=True)
     col_nama, _ = st.columns([2, 2])
     with col_nama:
         nama = st.text_input("Nama Lengkap Mahasiswa", placeholder="Contoh: Bayu Firmansyah")
@@ -92,9 +93,9 @@ with st.form("form_prediksi_internal"):
 
     # ── KELOMPOK 2: PERFORMA AKADEMIK ──
     st.markdown('<div class="section-card">', unsafe_allow_html=True)
-    st.markdown('<div class="section-card-title">📊 Performa Akademik Mahasiswa</div>', unsafe_allow_html=True)
+    st.markdown('<div class="section-card-title">Performa Akademik Mahasiswa</div>', unsafe_allow_html=True)
     if st.session_state.get("mode_semester", "Evaluasi Akhir Semester 1 (Deteksi Dini)") == "Evaluasi Akhir Semester 1 (Deteksi Dini)":
-        st.info("💡 **Mode Deteksi Dini Aktif:** Parameter Semester 2 akan otomatis menggunakan nilai Semester 1 agar model klasifikasi tetap konsisten.")
+        st.info("Mode Deteksi Dini Aktif: Parameter Semester 2 akan otomatis menggunakan nilai Semester 1 agar model klasifikasi tetap konsisten.")
         col_ipk1, col_sks1, col_mk_lulus1 = st.columns(3)
         with col_ipk1:
             ipk_sem_1 = st.number_input("IPK Semester 1", min_value=0.0, max_value=4.0, value=3.00, step=0.01)
@@ -117,7 +118,7 @@ with st.form("form_prediksi_internal"):
 
     # ── KELOMPOK 3: FAKTOR SOSIAL & EKONOMI ──
     st.markdown('<div class="section-card">', unsafe_allow_html=True)
-    st.markdown('<div class="section-card-title">💰 Kondisi Sosial & Keuangan</div>', unsafe_allow_html=True)
+    st.markdown('<div class="section-card-title">Kondisi Sosial dan Keuangan</div>', unsafe_allow_html=True)
     col_nikah, col_waktu, col_pindah = st.columns(3)
     with col_nikah: status_nikah = st.selectbox("Status Pernikahan", ["Belum Menikah", "Menikah", "Cerai"])
     with col_waktu: waktu_kuliah = st.selectbox("Waktu Perkuliahan", ["Pagi / Reguler", "Malam / Karyawan"])
@@ -129,7 +130,7 @@ with st.form("form_prediksi_internal"):
     st.markdown('</div>', unsafe_allow_html=True)
 
     submit = st.form_submit_button(
-        "Mulai Analisis Prediksi Risiko 🚀",
+        "Mulai Analisis Prediksi Risiko",
         use_container_width=True,
         disabled=(model is None or scaler is None)
     )
@@ -137,9 +138,9 @@ with st.form("form_prediksi_internal"):
 # ── PROSES INFERENSI MODEL ──
 if submit:
     if not nama.strip():
-        st.error("⚠️ Nama Lengkap Mahasiswa wajib diisi!")
+        st.error("Nama Lengkap Mahasiswa wajib diisi!")
     elif model is None or scaler is None:
-        st.error("❌ Model tidak tersedia. Pastikan file pkl sudah dihasilkan dari notebook.")
+        st.error("Model tidak tersedia. Pastikan file pkl sudah dihasilkan dari notebook.")
     else:
         try:
             # Hitung jumlah matakuliah dari SKS (rata-rata 3 SKS/matkul)
@@ -147,18 +148,14 @@ if submit:
             matkul_enrolled_2 = max(1, round(sks_sem_2 / 3))
 
             # Konversi IPK (skala 4.0) ke grade dataset UCI (skala 0–20)
-            # Rumus: grade_uci = ipk / 4.0 * 20.0  → sudah benar secara proporsional
-            # Namun jika mahasiswa tidak lulus satupun matkul, grade = 0
             grade_1 = round((ipk_sem_1 / 4.0) * 20.0, 4) if mk_lulus_1 > 0 else 0.0
             grade_2 = round((ipk_sem_2 / 4.0) * 20.0, 4) if mk_lulus_2 > 0 else 0.0
 
             marital_map = {"Belum Menikah": 1, "Menikah": 2, "Cerai": 3}
 
-            # Gunakan columns_list dari pkl jika tersedia, fallback ke list manual
             if columns_list is not None:
                 df_input = pd.DataFrame(0.0, index=[0], columns=columns_list)
             else:
-                # Fallback: kolom standar dataset UCI
                 uci_cols = [
                     "Marital status", "Application mode", "Application order", "Course",
                     "Daytime/evening attendance", "Previous qualification", "Nacionality",
@@ -175,12 +172,12 @@ if submit:
                     "Unemployment rate", "Inflation rate", "GDP"
                 ]
                 df_input = pd.DataFrame(0.0, index=[0], columns=uci_cols)
-                st.warning("⚠️ columns.pkl tidak ditemukan — menggunakan urutan kolom default UCI. Pastikan sesuai dengan kolom training.")
+                st.warning("columns.pkl tidak ditemukan — menggunakan urutan kolom default UCI. Pastikan sesuai dengan kolom training.")
 
             mapping = {
                 "Marital status"                              : marital_map.get(status_nikah, 1),
                 "Application mode"                            : 1,
-                "Application order"                           : 1,   # 1st choice = urutan pertama
+                "Application order"                           : 1,
                 "Course"                                      : 9,
                 "Daytime/evening attendance"                  : 1 if waktu_kuliah == "Pagi / Reguler" else 0,
                 "Previous qualification"                      : 1,
@@ -218,7 +215,6 @@ if submit:
                 if col in df_input.columns:
                     df_input[col] = val
 
-            # Jaga urutan kolom sesuai training
             if columns_list is not None:
                 df_input = df_input[columns_list]
 
@@ -232,33 +228,33 @@ if submit:
 
             if prob_dropout >= 50.0:
                 resiko, level, bar_color = "TINGGI", "tinggi", "#DC2626"
-                rekomen = "⚠️ <b>PERINGATAN SEGERA!</b> Mahasiswa terindikasi berada dalam risiko tinggi putus studi. Diwajibkan bimbingan intensif bersama Dosen Wali dan konseling akademik sesegera mungkin."
+                rekomen = "<b>Peringatan Segera.</b> Mahasiswa terindikasi berada dalam risiko tinggi putus studi. Diwajibkan bimbingan intensif bersama Dosen Wali dan konseling akademik sesegera mungkin."
             elif prob_dropout >= 25.0:
                 resiko, level, bar_color = "SEDANG", "sedang", "#D97706"
-                rekomen = "⚡ <b>STATUS WASPADA!</b> Mahasiswa memiliki kerentanan akademik sedang. Disarankan mendapatkan monitoring berkala dan pendampingan proaktif dari program studi."
+                rekomen = "<b>Status Waspada.</b> Mahasiswa memiliki kerentanan akademik sedang. Disarankan mendapatkan monitoring berkala dan pendampingan proaktif dari program studi."
             else:
                 resiko, level, bar_color = "RENDAH", "rendah", "#16A34A"
-                rekomen = "✅ <b>PERFORMA AMAN.</b> Evaluasi tracking menunjukkan tingkat persistensi studi yang solid. Pertahankan motivasi dan konsistensi akademik!"
+                rekomen = "<b>Performa Aman.</b> Evaluasi tracking menunjukkan tingkat persistensi studi yang solid. Pertahankan motivasi dan konsistensi akademik."
 
             bar_pct = int(np.clip(prob_dropout, 0, 100))
 
             st.markdown(f"""
             <div class="hasil-box hasil-{level}">
-                <div style="font-size:1.15rem; font-weight:800; color:#111827; margin-bottom:16px;">📊 Hasil Analisis Prediksi – {nama}</div>
-                <div style="display:flex; gap:40px; flex-wrap:wrap; margin-bottom:18px;">
+                <div class="hasil-title">Hasil Analisis Prediksi — {nama}</div>
+                <div style="display:flex; gap:40px; flex-wrap:wrap; margin-bottom:20px;">
                     <div><div class="hasil-label">Kategori Risiko</div><div class="hasil-resiko-{level}">{resiko}</div></div>
                     <div><div class="hasil-label">Potensi Dropout</div><div class="hasil-prob">{prob_dropout:.1f}%</div></div>
                     <div><div class="hasil-label">Masih Aktif (Enrolled)</div><div style="font-size:1.2rem; font-weight:700; color:#2563EB;">{prob_enrolled:.1f}%</div></div>
                     <div><div class="hasil-label">Estimasi Kelulusan</div><div style="font-size:1.2rem; font-weight:700; color:#16A34A;">{prob_graduate:.1f}%</div></div>
                 </div>
-                <div class="hasil-label">Skala Visualisasi Indeks Kerawanan Dropout</div>
+                <div class="hasil-label">Indeks Kerawanan Dropout</div>
                 <div class="progress-bg"><div class="progress-bar" style="width:{bar_pct}%; background:{bar_color};"></div></div>
-                <div style="display:flex; justify-content:space-between; font-size:11px; color:#9CA3AF; margin-top:4px;"><span>0% (Aman)</span><span>50% (Waspada)</span><span>100% (Kritis)</span></div>
+                <div style="display:flex; justify-content:space-between; font-size:11px; color:#9CA3AF; margin-top:4px;"><span>0% — Aman</span><span>50% — Waspada</span><span>100% — Kritis</span></div>
                 <div class="rekomen-text">{rekomen}</div>
             </div>
             """, unsafe_allow_html=True)
 
         except KeyError as e:
-            st.error(f"❌ Kolom fitur tidak cocok dengan model: {e}. Pastikan `columns.pkl` sesuai dengan model yang dilatih.")
+            st.error(f"Kolom fitur tidak cocok dengan model: {e}. Pastikan columns.pkl sesuai dengan model yang dilatih.")
         except Exception as e:
-            st.error(f"❌ Kesalahan kalkulasi teknis: {e}")
+            st.error(f"Kesalahan kalkulasi teknis: {e}")
